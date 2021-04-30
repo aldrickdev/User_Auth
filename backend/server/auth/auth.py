@@ -1,8 +1,8 @@
-import jwt
 from fastapi import HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
+import jwt # pyjwt
 
 
 
@@ -23,12 +23,11 @@ class AuthHandler:
       'iat': datetime.utcnow(), # Issued
       'sub': user_id # Subject
     }
-
-    return {
-      payload,
-      self.secret,
-      algorithm='HS256'
-    }
+    return jwt.encode(
+      payload = payload,
+      key = self.secret,
+      algorithm = 'HS256'
+    )
 
   def decode_token(self, token):
     try:
