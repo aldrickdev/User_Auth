@@ -1,17 +1,24 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from auth.auth import AuthHandler
 from models.schemas import AuthDetails
 import uvicorn
 
-# Database
-users = []
 
 app: FastAPI = FastAPI()
+app.mount('/static', StaticFiles(directory='../../frontend/build/static'), name='static')
+templates = Jinja2Templates(directory="../../frontend/build")
+
+
+# Database
+users = []
 auth_handler = AuthHandler()
 
-@app.get('/', status_code=200)
-def index():
-  return {'Hello': 'World'}
+@app.get('/', response_class=HTMLResponse, status_code=200)
+def index(request: Request):
+  return templates.TemplateResponse("index.html", {"request":request})
  
 @app.post('/login')
 def login(auth_details: AuthDetails):
@@ -64,4 +71,6 @@ def main():
   uvicorn.run(app=app, port=8001, host='127.0.0.1')
 
 if __name__ == '__main__':
+  main()
+else:
   main()
